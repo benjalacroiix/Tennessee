@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es-AR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tennessee | Tienda</title>
+  <meta name="description" content="Tennessee (@by.tennessee): piezas únicas y seleccionadas. Stock limitado. Pedí por WhatsApp." />
+
+  <!-- Fuentes: Playfair Display (logo) + Plus Jakarta Sans (textos) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS (CDN oficial) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { red: '#DC2626', black: '#0A0A0A', card: '#111111' } },
+          fontFamily: { logo: ['"Playfair Display"', 'serif'], sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <!-- Supabase JS (cliente oficial) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { background-color: #0A0A0A; color: #FFFFFF; }
+    ::selection { background: #DC2626; color: #fff; }
+    /* Animación del contador al sumar productos */
+    @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1); } }
+    .pop { animation: pop .3s ease; }
+    /* Evita scroll de fondo con el carrito abierto */
+    body.no-scroll { overflow: hidden; }
+    /* Scroll del carrito discreto */
+    #cart-items::-webkit-scrollbar { width: 6px; }
+    #cart-items::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  </style>
+</head>
+
+<body class="font-sans antialiased">
+
+  <!-- =====================================================
+       1. NAVBAR
+  ====================================================== -->
+  <header class="fixed top-0 inset-x-0 z-40 bg-black/70 backdrop-blur-md border-b border-white/10">
+    <nav class="max-w-6xl mx-auto px-4 sm:px-5 h-16 flex items-center justify-between gap-3">
+      <a href="#inicio" class="font-logo italic font-bold text-3xl text-brand-red leading-none">Tennessee</a>
+
+      <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-white/80">
+        <a href="#coleccion" class="hover:text-brand-red transition">Catálogo</a>
+        <a href="#beneficios" class="hover:text-brand-red transition">Beneficios</a>
+        <a href="#contacto" class="hover:text-brand-red transition">Contacto</a>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Instagram -->
+        <a href="https://instagram.com/by.tennessee" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 border border-white/20 text-white text-xs font-bold uppercase tracking-widest px-3 sm:px-4 py-2 rounded-full hover:border-brand-red hover:text-brand-red transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          <span class="hidden sm:inline">Instagram</span>
+        </a>
+
+        <!-- Botón del carrito con contador -->
+        <button id="open-cart" type="button" aria-label="Abrir carrito"
+                class="relative w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-brand-red hover:text-brand-red transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 7h12l-1 12H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+          <span id="cart-count" class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-brand-red text-white text-[11px] font-bold flex items-center justify-center">0</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- =====================================================
+         2. HERO
+         Para cambiar la foto de fondo, editá el src (ej: img/IMG_1604.jpg).
+    ====================================================== -->
+    <section id="inicio" class="relative min-h-[85vh] flex items-end md:items-center pt-16 bg-black">
+      <img src="img/IMG_1603.jpg" alt="Prenda de la colección Tennessee"
+           class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-black/40"></div>
+
+      <div class="relative max-w-6xl mx-auto px-5 pb-14 md:pb-0 w-full">
+        <span class="inline-block bg-brand-red text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full mb-5">TENNESSEE / DROP 01</span>
+        <h1 class="text-white font-black uppercase leading-[0.95] text-3xl sm:text-6xl md:text-8xl tracking-wider break-words">
+          Indumentaria<br />Urbana
+        </h1>
+        <p class="text-white/85 mt-5 max-w-md text-base sm:text-lg">Piezas únicas y seleccionadas. Stock limitado, listo para la calle.</p>
+        <a href="#coleccion" class="inline-block mt-8 bg-brand-red hover:bg-red-700 text-white text-sm font-black uppercase tracking-widest px-8 py-4 rounded-full transition shadow-lg shadow-red-900/30">Ver Catálogo</a>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         3. CATÁLOGO (dinámico, lee de Supabase)
+         Las prendas ya no se editan acá: se cargan desde admin.html
+    ====================================================== -->
+    <section id="coleccion" class="max-w-6xl mx-auto px-4 sm:px-5 py-16 md:py-24">
+      <div class="mb-8 text-center">
+        <p class="text-brand-red text-xs font-bold tracking-widest uppercase mb-2">Catálogo</p>
+        <h2 class="text-3xl md:text-5xl font-black uppercase tracking-widest">Elegí tus prendas</h2>
+        <p class="text-white/50 text-sm mt-3">Agregalas al carrito y finalizá tu pedido por WhatsApp.</p>
+      </div>
+
+      <!-- Filtros por categoría (se generan solos) -->
+      <div id="category-filters" class="flex flex-wrap justify-center gap-2 mb-8"></div>
+
+      <div id="product-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6"></div>
+    </section>
+
+    <!-- =====================================================
+         4. BENEFICIOS
+    ====================================================== -->
+    <section id="beneficios" class="border-y border-white/10 bg-brand-card">
+      <div class="max-w-6xl mx-auto px-5 py-20">
+        <div class="mb-12 text-center">
+          <p class="text-brand-red text-xs font-bold tracking-widest uppercase mb-2">Por qué Tennessee</p>
+          <h2 class="text-3xl md:text-5xl font-black uppercase tracking-widest">Comprá tranquilo</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+
+          <div>
+            <div class="mx-auto w-14 h-14 rounded-full bg-brand-red/15 text-brand-red flex items-center justify-center mb-5">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>
+            </div>
+            <h3 class="font-black uppercase tracking-widest text-sm mb-2">Envíos a todo el país</h3>
+            <p class="text-white/60 text-sm max-w-xs mx-auto">Te lo mandamos a donde estés, con embalaje cuidado.</p>
+          </div>
+
+          <div>
+            <div class="mx-auto w-14 h-14 rounded-full bg-brand-red/15 text-brand-red flex items-center justify-center mb-5">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8.3 7.5 9.5 4.4-1.2 7.5-5 7.5-9.5V6L12 3Z"/><path d="m8.8 12.2 2.4 2.4 4.2-4.6"/></svg>
+            </div>
+            <h3 class="font-black uppercase tracking-widest text-sm mb-2">Pago Seguro y Directo</h3>
+            <p class="text-white/60 text-sm max-w-xs mx-auto">Coordinamos tu pago y envíos de forma transparente y directa con nosotros.</p>
+          </div>
+
+          <div>
+            <div class="mx-auto w-14 h-14 rounded-full bg-brand-red/15 text-brand-red flex items-center justify-center mb-5">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/><path d="M8.5 11h7M8.5 14h4"/></svg>
+            </div>
+            <h3 class="font-black uppercase tracking-widest text-sm mb-2">Atención personalizada</h3>
+            <p class="text-white/60 text-sm max-w-xs mx-auto">Hablás directo con nosotros por WhatsApp o Instagram.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================
+       5. FOOTER
+  ====================================================== -->
+  <footer id="contacto" class="bg-black border-t border-white/10">
+    <div class="max-w-6xl mx-auto px-5 py-16 grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div>
+        <p class="font-logo italic font-bold text-4xl text-brand-red leading-none">Tennessee</p>
+        <p class="text-white/50 text-sm mt-4 max-w-xs">Indumentaria urbana. Prendas con identidad, seleccionadas una por una.</p>
+      </div>
+      <div>
+        <h4 class="font-black text-xs uppercase tracking-widest mb-4">Seguinos</h4>
+        <a href="https://instagram.com/by.tennessee" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-white/80 hover:text-brand-red transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          @by.tennessee
+        </a>
+      </div>
+      <div>
+        <h4 class="font-black text-xs uppercase tracking-widest mb-4">Horarios de atención</h4>
+        <ul class="text-white/60 text-sm space-y-1">
+          <li>Lunes a Viernes: 9:00 a 19:00 hs</li>
+          <li>Sábados: 10:00 a 14:00 hs</li>
+          <li>Domingos: cerrado</li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-white/10 py-6 text-center text-xs text-white/40">
+      © <span id="year">2026</span> Tennessee. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <!-- =====================================================
+       6. CARRITO LATERAL (DRAWER)
+  ====================================================== -->
+  <div id="cart-overlay" class="fixed inset-0 z-50 bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+  <aside id="cart-drawer" aria-label="Carrito de compras"
+         class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-[#0F0F0F] text-white border-l border-white/10 shadow-2xl translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="flex items-center justify-between px-5 h-16 border-b border-white/10 shrink-0">
+      <h2 class="font-black uppercase tracking-widest text-sm">Tu carrito</h2>
+      <button id="close-cart" type="button" aria-label="Cerrar carrito" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+
+    <div id="cart-items" class="flex-1 overflow-y-auto px-5 py-4 space-y-4"></div>
+
+    <div class="border-t border-white/10 p-5 shrink-0 bg-[#0F0F0F]">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs font-bold uppercase tracking-widest text-white/60">Total</span>
+        <span id="cart-total" class="text-2xl font-black">$0</span>
+      </div>
+      <button id="checkout-btn" type="button"
+              class="w-full bg-brand-red hover:bg-red-700 disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed text-white text-sm font-black uppercase tracking-widest py-3.5 rounded-full transition flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2a9.94 9.94 0 0 0-8.5 15.1L2 22l5.05-1.5A9.96 9.96 0 1 0 12.04 2Zm5.8 14.08c-.25.7-1.45 1.34-2 1.4-.52.06-1 .25-3.38-.7-2.85-1.13-4.67-4.05-4.8-4.24-.14-.19-1.15-1.53-1.15-2.92 0-1.4.73-2.08 1-2.37.25-.28.55-.35.74-.35h.53c.17 0 .4-.06.62.48.25.58.83 2 .9 2.14.08.15.12.32.02.5-.1.2-.15.32-.3.5l-.45.52c-.15.15-.3.3-.13.6.17.3.77 1.27 1.65 2.05 1.13 1 2.08 1.3 2.38 1.45.3.15.47.12.65-.07.17-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.28.1 1.75.83 2.05.98.3.15.5.22.57.35.07.12.07.7-.18 1.4Z"/></svg>
+        Finalizar Pedido por WhatsApp
+      </button>
+      <button id="clear-cart" type="button" class="w-full mt-2 text-xs text-white/40 hover:text-brand-red transition py-1">Vaciar carrito</button>
+    </div>
+  </aside>
+
+  <!-- Aviso flotante -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] bg-white text-black text-sm font-bold px-5 py-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 max-w-[90vw] text-center"></div>
+
+  <!-- =====================================================
+       JAVASCRIPT
+  ====================================================== -->
+  <script>
+    /* ---------- CONFIGURACIÓN ---------- */
+    const WHATSAPP_NUMERO = "5493816940051";   // Número de pedidos (con código de país, sin +)
+    const STORAGE_KEY = "tennessee_carrito";   // Clave para recordar el carrito en el navegador
+
+    // Supabase: la clave "publishable/anon" es pública por diseño; la seguridad la dan las políticas RLS.
+    const SUPABASE_URL = "https://eukoeahroszsgfvvmqvd.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_OP5xAIRGmvCxIYq5eWhEtw_sebgKO4L";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    /* ---------- ESTADO ---------- */
+    let productos = [];            // Se llena desde Supabase
+    let carrito = {};              // { idProducto: cantidad }
+    let categoriaActiva = "Todas"; // Filtro actual
+
+    /* ---------- UTILIDADES ---------- */
+    const $ = (id) => document.getElementById(id);
+
+    // Formato argentino: 20000 -> "$20.000"
+    const formatoPrecio = (n) => "$" + Number(n).toLocaleString("es-AR");
+
+    // Evita que comillas o símbolos rompan el HTML
+    const escapar = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    const buscarProducto = (id) => productos.find((p) => p.id === id);
+
+    // Talle de la prenda (1 por pieza). Si hubiera más de uno, se muestran separados por "/"
+    const talleTexto = (p) => (Array.isArray(p.talles) && p.talles.length ? p.talles.join(" / ") : "—");
+
+    function guardarCarrito() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(carrito)); } catch (e) {}
+    }
+    function cargarCarrito() {
+      try {
+        const guardado = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        Object.keys(guardado).forEach((id) => { if (guardado[id] > 0) carrito[id] = guardado[id]; });
+      } catch (e) { carrito = {}; }
+    }
+
+    /* ---------- SUPABASE: LEER PRODUCTOS ---------- */
+    function mostrarCargando() {
+      $("product-grid").innerHTML = Array.from({ length: 8 }).map(() => `
+        <div class="rounded-2xl overflow-hidden border border-white/10 bg-brand-card animate-pulse">
+          <div class="aspect-[4/5] bg-white/5"></div>
+          <div class="p-4 space-y-3"><div class="h-4 bg-white/10 rounded w-3/4"></div><div class="h-3 bg-white/10 rounded w-1/3"></div><div class="h-10 bg-white/10 rounded-full"></div></div>
+        </div>`).join("");
+    }
+
+    async function cargarProductos() {
+      const { data, error } = await sb.from("productos").select("*").order("created_at", { ascending: false });
+      if (error) {
+        console.error("Error cargando productos:", error);
+        $("category-filters").innerHTML = "";
+        $("product-grid").innerHTML = `
+          <div class="col-span-full text-center py-16">
+            <p class="text-white/70 font-semibold">No pudimos cargar el catálogo.</p>
+            <button type="button" data-retry class="mt-4 border border-white/30 hover:border-brand-red hover:text-brand-red text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition">Reintentar</button>
+          </div>`;
+        return;
+      }
+      // Las prendas con stock primero; dentro de cada grupo, las más nuevas arriba
+      productos = (data || []).sort((a, b) => (b.en_stock ? 1 : 0) - (a.en_stock ? 1 : 0));
+      sincronizarCarrito();
+      renderFiltros();
+      renderCatalogo();
+      renderCarrito();
+    }
+
+    // Quita del carrito prendas que ya no existen o quedaron sin stock
+    function sincronizarCarrito() {
+      let quitadas = 0;
+      Object.keys(carrito).forEach((id) => {
+        const p = buscarProducto(id);
+        if (!p || !p.en_stock) { delete carrito[id]; quitadas++; }
+      });
+      if (quitadas) {
+        guardarCarrito();
+        mostrarAviso("Algunas prendas de tu carrito ya no están disponibles");
+      }
+    }
+
+    /* ---------- CATÁLOGO: FILTROS Y TARJETAS ---------- */
+    function renderFiltros() {
+      const categorias = ["Todas", ...new Set(productos.map((p) => p.categoria).filter(Boolean))];
+      if (!categorias.includes(categoriaActiva)) categoriaActiva = "Todas";
+      $("category-filters").innerHTML = categorias.map((c) => `
+        <button type="button" data-cat="${escapar(c)}"
+                class="text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition ${c === categoriaActiva ? "bg-white text-black border-white" : "border-white/20 text-white/70 hover:border-brand-red hover:text-brand-red"}">
+          ${escapar(c)}
+        </button>`).join("");
+    }
+
+    function renderCatalogo() {
+      const grid = $("product-grid");
+      const lista = productos.filter((p) => categoriaActiva === "Todas" || p.categoria === categoriaActiva);
+
+      if (!lista.length) {
+        grid.innerHTML = `<p class="col-span-full text-center text-white/50 py-16">No hay prendas para mostrar por ahora. ¡Pronto nuevo drop!</p>`;
+        return;
+      }
+
+      grid.innerHTML = lista.map((p) => {
+        const agotado = !p.en_stock;
+        return `
+        <article class="group bg-brand-card rounded-2xl overflow-hidden border border-white/10 hover:border-brand-red/60 transition flex flex-col">
+          <div class="relative aspect-[4/5] overflow-hidden bg-[#1a1a1a] flex items-center justify-center">
+            <svg class="w-12 h-12 text-white/15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 6a2 2 0 1 1 2 2c-1 .4-2 1-2 2v1M3 18l9-6 9 6a1 1 0 0 1-.6 1.8H3.6A1 1 0 0 1 3 18Z"/></svg>
+            ${p.imagen_url ? `<img src="${escapar(p.imagen_url)}" alt="${escapar(p.nombre)}" loading="lazy" onerror="this.style.display='none'"
+                 class="absolute inset-0 w-full h-full object-cover transition duration-500 ${agotado ? "opacity-40 grayscale" : "group-hover:scale-105"}" />` : ""}
+            ${agotado
+              ? `<span class="absolute top-2 left-2 z-10 bg-brand-red text-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">SIN STOCK</span>`
+              : (p.estado ? `<span class="absolute top-2 left-2 z-10 bg-white text-black text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">${escapar(p.estado)}</span>` : "")}
+            ${p.destacado && !agotado ? `<span class="absolute top-2 right-2 z-10 bg-brand-red text-white text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full">★</span>` : ""}
+          </div>
+          <div class="p-3 sm:p-5 flex flex-col flex-1">
+            <h3 class="font-bold text-sm sm:text-base leading-snug ${agotado ? "text-white/50" : ""}">${escapar(p.nombre)}</h3>
+            <p class="text-xs text-white/50 mt-1">Talle: <span class="font-bold text-white/90">${escapar(talleTexto(p))}</span></p>
+            <p class="font-black text-lg sm:text-xl mt-2 ${agotado ? "text-white/40 line-through" : ""}">${formatoPrecio(p.precio)} <span class="text-[10px] font-semibold text-white/40 no-underline">ARS</span></p>
+            <div class="mt-auto pt-3">
+              <button type="button" data-add="${escapar(p.id)}" ${agotado ? "disabled" : ""}
+                      class="w-full text-xs sm:text-sm font-black uppercase tracking-widest py-2.5 sm:py-3 rounded-full transition ${agotado
+                        ? "bg-white/10 text-white/30 cursor-not-allowed"
+                        : "bg-white text-black hover:bg-brand-red hover:text-white"}">
+                ${agotado ? "Sin Stock" : "Agregar al Carrito"}
+              </button>
+            </div>
+          </div>
+        </article>`;
+      }).join("");
+    }
+
+    /* ---------- LÓGICA DEL CARRITO ---------- */
+
+    // Suma 1 unidad (si ya está, acumula la cantidad)
+    function agregarAlCarrito(id) {
+      const p = buscarProducto(id);
+      if (!p || !p.en_stock) return;   // Seguridad extra: no se agrega lo que está sin stock
+      carrito[id] = (carrito[id] || 0) + 1;
+      guardarCarrito();
+      renderCarrito();
+      mostrarAviso(`Agregado: ${p.nombre}`);
+      const badge = $("cart-count");
+      badge.classList.remove("pop");
+      void badge.offsetWidth; // reinicia la animación
+      badge.classList.add("pop");
+    }
+
+    // Cambia la cantidad (+1 / -1). Si llega a 0, se elimina.
+    function cambiarCantidad(id, delta) {
+      const nueva = (carrito[id] || 0) + delta;
+      if (nueva <= 0) { eliminarDelCarrito(id); return; }
+      carrito[id] = nueva;
+      guardarCarrito();
+      renderCarrito();
+    }
+
+    function eliminarDelCarrito(id) {
+      delete carrito[id];
+      guardarCarrito();
+      renderCarrito();
+    }
+
+    function vaciarCarrito() {
+      carrito = {};
+      guardarCarrito();
+      renderCarrito();
+    }
+
+    // Cantidad total de prendas y total en pesos (solo cuenta prendas existentes)
+    function calcularTotales() {
+      let cantidad = 0, total = 0;
+      Object.keys(carrito).forEach((id) => {
+        const p = buscarProducto(id);
+        if (!p) return;
+        cantidad += carrito[id];
+        total += Number(p.precio) * carrito[id];
+      });
+      return { cantidad, total };
+    }
+
+    function renderCarrito() {
+      const contenedor = $("cart-items");
+      const ids = Object.keys(carrito).filter((id) => buscarProducto(id));
+      const { cantidad, total } = calcularTotales();
+
+      $("cart-count").textContent = cantidad;
+      $("cart-total").textContent = formatoPrecio(total);
+      $("checkout-btn").disabled = ids.length === 0;
+      $("clear-cart").classList.toggle("hidden", ids.length === 0);
+
+      if (ids.length === 0) {
+        contenedor.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center text-white/50 py-16">
+            <svg class="w-12 h-12 mb-3 text-white/20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 7h12l-1 12H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+            <p class="font-bold">Tu carrito está vacío</p>
+            <p class="text-sm mt-1">Sumá prendas desde el catálogo.</p>
+          </div>`;
+        return;
+      }
+
+      contenedor.innerHTML = ids.map((id) => {
+        const p = buscarProducto(id);
+        const cant = carrito[id];
+        return `
+          <div class="flex gap-3 pb-4 border-b border-white/10">
+            <div class="relative w-16 h-16 rounded-lg bg-[#1a1a1a] overflow-hidden shrink-0 flex items-center justify-center">
+              <span class="text-white/20 font-logo italic text-xl">T</span>
+              ${p.imagen_url ? `<img src="${escapar(p.imagen_url)}" alt="" onerror="this.style.display='none'" class="absolute inset-0 w-full h-full object-cover" />` : ""}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-sm leading-snug">${escapar(p.nombre)}</p>
+              <p class="text-xs text-white/50">Talle: ${escapar(talleTexto(p))}</p>
+              <div class="flex items-center justify-between mt-2">
+                <div class="flex items-center border border-white/20 rounded-full">
+                  <button type="button" data-qty="${escapar(id)}" data-delta="-1" class="w-7 h-7 text-lg leading-none hover:text-brand-red" aria-label="Quitar uno">−</button>
+                  <span class="w-6 text-center text-sm font-bold">${cant}</span>
+                  <button type="button" data-qty="${escapar(id)}" data-delta="1" class="w-7 h-7 text-lg leading-none hover:text-brand-red" aria-label="Sumar uno">+</button>
+                </div>
+                <p class="font-black text-sm">${formatoPrecio(Number(p.precio) * cant)}</p>
+              </div>
+            </div>
+            <button type="button" data-remove="${escapar(id)}" aria-label="Eliminar ${escapar(p.nombre)}" class="self-start text-white/40 hover:text-brand-red transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/></svg>
+            </button>
+          </div>`;
+      }).join("");
+    }
+
+    /* ---------- ABRIR / CERRAR EL DRAWER ---------- */
+    const drawer = $("cart-drawer");
+    const overlay = $("cart-overlay");
+
+    function abrirCarrito() {
+      drawer.classList.remove("translate-x-full");
+      overlay.classList.remove("opacity-0", "pointer-events-none");
+      document.body.classList.add("no-scroll");
+    }
+    function cerrarCarrito() {
+      drawer.classList.add("translate-x-full");
+      overlay.classList.add("opacity-0", "pointer-events-none");
+      document.body.classList.remove("no-scroll");
+    }
+
+    /* ---------- AVISO FLOTANTE ---------- */
+    let toastTimer;
+    function mostrarAviso(texto) {
+      const toast = $("toast");
+      toast.textContent = texto;
+      toast.classList.remove("opacity-0");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.add("opacity-0"), 2200);
+    }
+
+    /* ---------- FINALIZAR PEDIDO POR WHATSAPP ---------- */
+    function finalizarPedido() {
+      const ids = Object.keys(carrito).filter((id) => buscarProducto(id));
+      if (ids.length === 0) return;
+
+      const { total } = calcularTotales();
+      let mensaje = "¡Hola Tennessee! 👋 Quiero hacer el siguiente pedido:\n\n";
+
+      ids.forEach((id) => {
+        const p = buscarProducto(id);
+        const cant = carrito[id];
+        mensaje += `• ${cant}x ${p.nombre} (Talle ${talleTexto(p)}) - ${formatoPrecio(Number(p.precio) * cant)}\n`;
+      });
+
+      mensaje += `\n*TOTAL: ${formatoPrecio(total)}*\n\n¿Me confirmás disponibilidad y cómo coordinamos el pago y el envío? ¡Gracias!`;
+
+      const url = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, "_blank", "noopener");
+    }
+
+    /* ---------- EVENTOS ---------- */
+    $("open-cart").addEventListener("click", abrirCarrito);
+    $("close-cart").addEventListener("click", cerrarCarrito);
+    overlay.addEventListener("click", cerrarCarrito);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") cerrarCarrito(); });
+    $("checkout-btn").addEventListener("click", finalizarPedido);
+    $("clear-cart").addEventListener("click", vaciarCarrito);
+
+    // Catálogo: agregar al carrito / reintentar carga
+    $("product-grid").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-add]");
+      if (btn && !btn.disabled) agregarAlCarrito(btn.dataset.add);
+      if (e.target.closest("[data-retry]")) { mostrarCargando(); cargarProductos(); }
+    });
+
+    // Filtros de categoría
+    $("category-filters").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-cat]");
+      if (!btn) return;
+      categoriaActiva = btn.dataset.cat;
+      renderFiltros();
+      renderCatalogo();
+    });
+
+    // Carrito: +, − y eliminar
+    $("cart-items").addEventListener("click", (e) => {
+      const qty = e.target.closest("[data-qty]");
+      const del = e.target.closest("[data-remove]");
+      if (qty) cambiarCantidad(qty.dataset.qty, Number(qty.dataset.delta));
+      if (del) eliminarDelCarrito(del.dataset.remove);
+    });
+
+    /* ---------- TIEMPO REAL ----------
+       Cuando cambiás algo desde admin.html, la tienda se actualiza sola. */
+    let recargaTimer;
+    sb.channel("productos-publico")
+      .on("postgres_changes", { event: "*", schema: "public", table: "productos" }, () => {
+        clearTimeout(recargaTimer);
+        recargaTimer = setTimeout(cargarProductos, 400);   // agrupa cambios seguidos
+      })
+      .subscribe();
+
+    /* ---------- INICIO ---------- */
+    $("year").textContent = new Date().getFullYear();
+    cargarCarrito();
+    renderCarrito();
+    mostrarCargando();
+    cargarProductos();
+  </script>
+</body>
+</html>
